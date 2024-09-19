@@ -179,28 +179,28 @@ class App(Tk):
 		self.driver = webdriver.Chrome()
 
 		self.title("LIPID")
-		self.geometry("300x150+500+250")
+		self.geometry("350x250+500+250")
 		self.resizable(width=False, height=False)
-		self.signin = Frame(self, width=300, height=150)
+		self.signin = Frame(self, width=350, height=250)
 		self.signin.grid()
 
 		self.create_signin()
 	
 	def create_signin(self):
 		username = Label(self.signin, text="Email")
-		username.place(x=30, y=20)
+		username.place(x=30, y=30)
 
 		self.u_entry = Entry(self.signin)
-		self.u_entry.place(x=100, y=20, width=150)
+		self.u_entry.place(x=100, y=30, width=175)
 
 		password = Label(self.signin, text="Password")
-		password.place(x=30, y=50)
+		password.place(x=30, y=70)
 
 		self.p_entry = Entry(self.signin, show="*")
-		self.p_entry.place(x=100, y=50, width=150)
+		self.p_entry.place(x=100, y=70, width=175)
 
 		sign_in = Button(self.signin, text="Sign In", command=self.login)
-		sign_in.place(x=50, y=80)
+		sign_in.place(x=50, y=110)
 
 	def login(self):
 		login_url = "https://www.linkedin.com/login"
@@ -225,36 +225,36 @@ class App(Tk):
 		self.dl_path = StringVar()
 		self.dest_path = StringVar()
 
-		self.folder_frame = Frame(self, width=300, height=150)
+		self.folder_frame = Frame(self, width=350, height=250)
 		self.folder_frame.grid()
 
-		download_label = Label(self.folder_frame, textvariable=self.dl_path)
-		download_label.place(x=20, y=35)
-
 		dl_folder_button = Button(self.folder_frame, text="Select Downloads Folder", command=self.browse_download_folder)
-		dl_folder_button.place(x=30, y=10)
+		dl_folder_button.place(x=30, y=30)
+
+		download_label = Label(self.folder_frame, textvariable=self.dl_path)
+		download_label.place(x=30, y=70)
 
 	def browse_download_folder(self):
 		dl_foldername = filedialog.askdirectory(title="Select Downloads Folder")
 		self.dl_path.set(dl_foldername)
 
 		dest_folder = Button(self.folder_frame, text="Select Destination Folder", command=self.browse_destination_folder)
-		dest_folder.place(x=30, y=60)
+		dest_folder.place(x=30, y=100)
 	
 	def browse_destination_folder(self):
 		dest_foldername = filedialog.askdirectory(title="Select Destination Folder")
 		self.dest_path.set(dest_foldername)
 
 		dest_label = Label(self.folder_frame, textvariable=self.dest_path)
-		dest_label.place(x=20, y=85)
+		dest_label.place(x=30, y=140)
 
 		download_button = Button(self.folder_frame, text="Download A Profile", command=self.lipid)
-		download_button.place(x=30, y=110)
+		download_button.place(x=30, y=180)
 	
 	def lipid(self):
 		self.top = Toplevel()
 		self.top.title("Download Profile")
-		self.top.geometry("300x150+800+250")
+		self.top.geometry("350x250+850+250")
 		self.top.resizable(width=False, height=False)
 		self.top.attributes("-topmost", True)
 
@@ -262,10 +262,10 @@ class App(Tk):
 		open_url.place(x=30, y=20)
 
 		self.url_entry = Entry(self.top)
-		self.url_entry.place(x=100, y=20, width=150)
+		self.url_entry.place(x=120, y=20, width=200)
 
 		self.download_profile_button = Button(self.top, text="Download Profile", command=self.dl_profile)
-		self.download_profile_button.place(x=30, y=66)
+		self.download_profile_button.place(x=30, y=60)
 
 	def dl_profile(self):
 		dl_path_string = self.dl_path.get() + '/'
@@ -282,12 +282,13 @@ class App(Tk):
 
 		profile_name = self.driver.find_element(By.XPATH, "/html/body/div[5]/div[3]/div/div/div[2]/div/div/main/section[1]/div[2]/div[2]/div[1]/div[1]/span[1]/a/h1").text
 
-		person_name = str(profile_name + ".pdf")
 		extra_characters = r'\/:*?"<>|'
 
-		for c in extra_characters:
-			if c in person_name:
-				person_name = person_name.replace(c, '.')
+		for c in profile_name:
+			if c in extra_characters:
+				profile_name = profile_name.replace(c, '.')
+
+		person_name = str(profile_name + ".pdf")
 
 		while before_click == after_click:
 			time.sleep(1)
@@ -298,6 +299,16 @@ class App(Tk):
 			file_list = glob.iglob(file_path)
 			newest_file = max(file_list, key=os.path.getmtime)
 		shutil.move(newest_file, dest_path_string + person_name)
+
+		download_another_window = Frame(self.top, width=350, height=250)
+		download_another_window.grid()
+
+		download_another_button = Button(download_another_window, text="Download Another", command=self.download_another)
+		download_another_button.place(x=30, y=30)
+	
+	def download_another(self):
+		self.top.destroy()
+		self.lipid()
 
 if __name__ == "__main__":
 	app = App()
